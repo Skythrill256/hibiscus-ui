@@ -156,7 +156,7 @@ const AgentDetailsPage = () => {
       <div className="container px-4 sm:px-6 lg:px-8 mx-auto">
         <div className="mb-6">
           <Button variant="ghost" size="sm" className="mb-4" asChild>
-            <Link href="/agent-registry">
+            <Link href="/">
               <ChevronLeft className="h-4 w-4 mr-2" /> Back to Registry
             </Link>
           </Button>

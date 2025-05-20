@@ -535,7 +535,7 @@ const page = () => {
           </div>
         </div>
 
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        {/* <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
             {selectedAgent && (
               <>
@@ -763,7 +763,7 @@ const page = () => {
               </>
             )}
           </DialogContent>
-        </Dialog>
+        </Dialog> */}
       </div>
     </section>
   );
