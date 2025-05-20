@@ -13,6 +13,8 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
+import { ArrowLeft,ArrowRight } from "lucide-react";
+import { useRouter } from "next/navigation";
 // Sample agents data
 const agents = [
   {
@@ -142,7 +144,8 @@ const page = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [hoveredAgent, setHoveredAgent] = useState<string | null>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
-  
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
+  const router = useRouter();
   // Filter states
   const [expandedFilters, setExpandedFilters] = useState<Record<string, boolean>>({
     category: true,
@@ -223,12 +226,46 @@ const page = () => {
 
   return (
     <section className="w-full py-8 relative animate-on-scroll ">
-       <div className="w-full text-center mb-6">
-          <h1 className="section-title font-bold mb-2 text-black text-5xl">Hibiscus Registry</h1>
-          <p className="text-gray-600 max-w-3xl mx-auto">
-            Search and discover AI agents across the Pebble network ecosystem.
-          </p>
+        <header className="text-black">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center py-10">
+            {/* <div className="flex items-center mb-6 md:mb-0">
+              <Link href="/" className="flex items-center mr-8 group">
+                <ArrowLeft className="h-5 w-5 mr-2 transform group-hover:-translate-x-1 transition-transform duration-200" />
+                <span className="text-sm font-medium">Back to Home</span>
+              </Link>
+            </div> */}
+            
+            <div className="w-full flex flex-col items-center text-center">
+              <h1 className="text-black text-4xl font-bold bg-clip-text tracking-tight">
+                Hibiscus Registry
+              </h1>
+              <p className="mt-2 text-black max-w-2xl">
+                Discover and connect with powerful AI agents across the Pebble network ecosystem
+              </p>
+            </div>
+            
+            <div 
+              className="w-fit flex flex-col sm:flex-row gap-4 justify-center"
+            >
+              <Button
+                className="flex items-center justify-center group w-full sm:w-auto text-center bg-black text-white font-semibold shadow-lg hover:from-pulse-600 hover:to-pulse-800 transition-all duration-200 px-16 rounded-full py-5"
+                style={{
+                  borderRadius: '1440px',
+                  cursor: 'pointer',
+                  fontSize: '16px',
+                  lineHeight: '20px',
+                  border: 'none',
+                }}
+                onClick={() => setShowLoginDialog(true)}
+              >
+                Create Agent
+                <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
+              </Button>
+            </div>
+          </div>
         </div>
+      </header>
       <div className="container px-4 sm:px-6 lg:px-8 mx-auto">
        
 
@@ -535,236 +572,30 @@ const page = () => {
           </div>
         </div>
 
-        {/* <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogContent className="sm:max-w-3xl max-h-[90vh] overflow-y-auto">
-            {selectedAgent && (
-              <>
-                <DialogHeader className="space-y-2 border-b pb-4">
-                  <DialogTitle className="flex items-center gap-3">
-                    <div className="p-3 bg-gray-100 rounded-lg">
-                      {selectedAgent.icon}
-                    </div>
-                    <div>
-                      {selectedAgent.name}
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge className={`px-2 ${
-                          selectedAgent.status === "Active" ? "bg-green-100 text-green-800 hover:bg-green-100" : 
-                          selectedAgent.status === "Idle" ? "bg-amber-100 text-amber-800 hover:bg-amber-100" : 
-                          "bg-gray-100 text-gray-800 hover:bg-gray-100"
-                        }`}>
-                          {selectedAgent.status}
-                        </Badge>
-                        <span className="text-xs text-gray-500">Version {selectedAgent.version}</span>
-                      </div>
-                    </div>
-                  </DialogTitle>
-                  <DialogDescription className="text-sm text-gray-600">
-                    {selectedAgent.description}
-                  </DialogDescription>
-                </DialogHeader>
-
-                <div className="py-2">
-                  <Tabs defaultValue="details" className="w-full">
-                    <TabsList className="w-full justify-start mb-4 border-b rounded-none h-auto p-0 bg-transparent">
-                      <TabsTrigger value="details" className="data-[state=active]:border-b-2 data-[state=active]:border-pulse-500 data-[state=active]:bg-transparent rounded-none py-2 px-4 text-sm">
-                        Details
-                      </TabsTrigger>
-                      <TabsTrigger value="performance" className="data-[state=active]:border-b-2 data-[state=active]:border-pulse-500 data-[state=active]:bg-transparent rounded-none py-2 px-4 text-sm">
-                        Performance
-                      </TabsTrigger>
-                      <TabsTrigger value="compatibility" className="data-[state=active]:border-b-2 data-[state=active]:border-pulse-500 data-[state=active]:bg-transparent rounded-none py-2 px-4 text-sm">
-                        Compatibility
-                      </TabsTrigger>
-                    </TabsList>
-                    
-                    <TabsContent value="details" className="mt-0">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div className="space-y-4">
-                          <div className="bg-gray-50 p-4 rounded-lg">
-                            <h3 className="font-medium text-sm mb-3">Agent Information</h3>
-                            <div className="space-y-2">
-                              <div className="flex justify-between text-sm">
-                                <span className="text-gray-500">Type:</span>
-                                <span className="font-medium">{selectedAgent.type}</span>
-                              </div>
-                              <div className="flex justify-between text-sm">
-                                <span className="text-gray-500">Created by:</span>
-                                <span className="font-medium">{selectedAgent.createdBy}</span>
-                              </div>
-                              <div className="flex justify-between text-sm">
-                                <span className="text-gray-500">Date created:</span>
-                                <span className="font-medium">{selectedAgent.dateCreated}</span>
-                              </div>
-                              <div className="flex justify-between text-sm">
-                                <span className="text-gray-500">Last updated:</span>
-                                <span className="font-medium">{selectedAgent.lastUpdated}</span>
-                              </div>
-                              <div className="flex justify-between text-sm">
-                                <span className="text-gray-500">Usage count:</span>
-                                <span className="font-medium">{selectedAgent.usageCount.toLocaleString()}</span>
-                              </div>
-                            </div>
-                          </div>
-                          
-                          <div className="bg-gray-50 p-4 rounded-lg">
-                            <h3 className="font-medium text-sm mb-3">Tags</h3>
-                            <div className="flex flex-wrap gap-2">
-                              {selectedAgent.tags.map((tag, idx) => (
-                                <Badge key={idx} variant="outline" className="bg-white">
-                                  {tag}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-4">
-                          <div className="bg-gray-50 p-4 rounded-lg">
-                            <h3 className="font-medium text-sm mb-3">Capabilities</h3>
-                            <ul className="space-y-2">
-                              {selectedAgent.capabilities.map((capability, idx) => (
-                                <li key={idx} className="flex items-start gap-2 text-sm">
-                                  <Check className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                                  <span>{capability}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                          
-                          <div className="bg-gray-50 p-4 rounded-lg">
-                            <h3 className="font-medium text-sm mb-3">Documentation</h3>
-                            <div className="text-sm">
-                              <p className="mb-3 text-gray-600">
-                                Access comprehensive documentation to learn more about this agent's capabilities and integration options.
-                              </p>
-                              <Button variant="outline" size="sm" className="w-full">
-                                <a href={selectedAgent.documentation} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center w-full">
-                                  View Documentation
-                                  <ChevronRight className="ml-2 h-4 w-4" />
-                                </a>
-                              </Button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </TabsContent>
-                    
-                    <TabsContent value="performance" className="mt-0">
-                      <div className="space-y-6">
-                        <div className="bg-gray-50 p-4 rounded-lg">
-                          <div className="flex justify-between items-center mb-4">
-                            <h3 className="font-medium">Performance Score</h3>
-                            <Badge className={`px-3 py-1 ${
-                              selectedAgent.performanceScore >= 90 ? "bg-green-100 text-green-800 hover:bg-green-100" : 
-                              selectedAgent.performanceScore >= 70 ? "bg-amber-100 text-amber-800 hover:bg-amber-100" : 
-                              "bg-red-100 text-red-800 hover:bg-red-100"
-                            }`}>
-                              {selectedAgent.performanceScore}%
-                            </Badge>
-                          </div>
-                          
-                          <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                            <div 
-                              className={`h-full rounded-full ${
-                                selectedAgent.performanceScore >= 90 ? "bg-green-500" : 
-                                selectedAgent.performanceScore >= 70 ? "bg-amber-500" : 
-                                "bg-red-500"
-                              }`}
-                              style={{ width: `${selectedAgent.performanceScore}%` }}
-                            />
-                          </div>
-                          
-                          <div className="mt-4 text-sm text-gray-600">
-                            <p>This agent is performing well with excellent response times and high accuracy rates across all operations.</p>
-                          </div>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <div className="bg-gray-50 p-4 rounded-lg">
-                            <div className="text-center">
-                              <h4 className="text-sm font-medium text-gray-500">Response Time</h4>
-                              <p className="text-2xl font-bold mt-2">45ms</p>
-                              <p className="text-xs text-green-600 mt-1">12% faster than average</p>
-                            </div>
-                          </div>
-                          
-                          <div className="bg-gray-50 p-4 rounded-lg">
-                            <div className="text-center">
-                              <h4 className="text-sm font-medium text-gray-500">Success Rate</h4>
-                              <p className="text-2xl font-bold mt-2">99.7%</p>
-                              <p className="text-xs text-green-600 mt-1">2.3% above SLA</p>
-                            </div>
-                          </div>
-                          
-                          <div className="bg-gray-50 p-4 rounded-lg">
-                            <div className="text-center">
-                              <h4 className="text-sm font-medium text-gray-500">Error Rate</h4>
-                              <p className="text-2xl font-bold mt-2">0.3%</p>
-                              <p className="text-xs text-green-600 mt-1">1.7% below threshold</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </TabsContent>
-                    
-                    <TabsContent value="compatibility" className="mt-0">
-                      <div className="space-y-4">
-                        <div className="bg-gray-50 p-4 rounded-lg">
-                          <h3 className="font-medium text-sm mb-3">Compatible Systems</h3>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                            {selectedAgent.compatibleSystems.map((system, idx) => (
-                              <div key={idx} className="bg-white p-3 rounded border border-gray-200 flex items-center">
-                                <Check className="h-4 w-4 text-green-500 mr-2" />
-                                <span className="text-sm">{system}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                        
-                        <div className="bg-gray-50 p-4 rounded-lg">
-                          <h3 className="font-medium text-sm mb-3">Integration Options</h3>
-                          <div className="space-y-3">
-                            <div className="bg-white p-3 rounded border border-gray-200">
-                              <p className="text-sm font-medium">API Integration</p>
-                              <p className="text-xs text-gray-600 mt-1">Integrate via REST API for maximum flexibility</p>
-                            </div>
-                            <div className="bg-white p-3 rounded border border-gray-200">
-                              <p className="text-sm font-medium">SDK Integration</p>
-                              <p className="text-xs text-gray-600 mt-1">Use our client libraries for quick implementation</p>
-                            </div>
-                            <div className="bg-white p-3 rounded border border-gray-200">
-                              <p className="text-sm font-medium">Container Deployment</p>
-                              <p className="text-xs text-gray-600 mt-1">Deploy as a container for isolated execution</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </TabsContent>
-                  </Tabs>
-                </div>
-
-                <div className="p-4 mt-2 bg-gradient-to-r from-pulse-50 to-pulse-100 border border-pulse-200 rounded-lg">
-                  <div className="flex items-start gap-4">
-                    <div className="p-2 bg-white bg-opacity-70 rounded-lg">
-                      <Zap className="h-5 w-5 text-pulse-600" />
-                    </div>
-                    <div>
-                      <h3 className="font-medium text-pulse-800 mb-1">Coming Soon: Direct Integration</h3>
-                      <p className="text-sm text-pulse-700">
-                        Hibiscus will enable direct agent integration, letting you deploy and manage agents across your network with full mTLS security and comprehensive monitoring.
-                      </p>
-                      <Button className="mt-3 bg-white text-pulse-700 border border-pulse-300 hover:bg-pulse-50">
-                        Join Early Access
-                        <ChevronRight className="ml-1 h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
-          </DialogContent>
-        </Dialog> */}
+        
       </div>
+      
+      {/* Login Required Dialog */}
+      <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
+        <DialogContent className="max-w-md text-center">
+          <DialogHeader>
+            <DialogTitle className="text-2xl font-bold mb-2">Login Required</DialogTitle>
+            <DialogDescription className="mb-4">
+              You need to log in to create a new agent. Please log in to continue.
+            </DialogDescription>
+          </DialogHeader>
+          <Button
+            className="w-full text-white font-semibold shadow-lg hover:from-pulse-600 hover:to-pulse-800 transition-all duration-200 py-3 rounded-xl text-base flex items-center justify-center gap-2"
+            onClick={() => {
+              setShowLoginDialog(false);
+              router.push("/agents/create-login");
+            }}
+          >
+            <User className="h-5 w-5 text-white" />
+            Login
+          </Button>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };
