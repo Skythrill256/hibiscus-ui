@@ -40,7 +40,7 @@ export default function FilterBarUI({
     }
   };
   return (
-   <div className="relative px-4 py-3 w-full text-black overflow-x-auto scrollbar-hide mb-4"
+   <div className="relative px-4 py-3 w-full text-white overflow-x-auto scrollbar-hide mb-4"
    style={{
     msOverflowStyle: 'none',  /* IE and Edge */
     scrollbarWidth: 'none',   /* Firefox */
