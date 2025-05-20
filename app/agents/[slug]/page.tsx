@@ -125,8 +125,8 @@ const agents = [
 ];
 
 const AgentDetailsPage = () => {
-  const { id } = useParams<{ id: string }>();
-  const agent = agents.find(a => a.id === id);
+  const { slug } = useParams<{ slug: string }>();
+  const agent = agents.find(a => a.id === slug);
   
   const handleIntegrationClick = () => {
     toast("Feature Coming Soon", {
