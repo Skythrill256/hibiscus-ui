@@ -1,11 +1,10 @@
 import AgentDetails from "@/components/AgentDetails"
 
-interface PageProps {
-  params: {
-    slug: string
-  }
-}
-
-export default function AgentPage({ params }: PageProps) {
-  return <AgentDetails slug={params.slug} />
+export default async function AgentPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}) {
+  const { slug } = await params;
+  return <AgentDetails slug={slug} />
 }
