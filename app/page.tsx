@@ -15,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
 import { ArrowLeft,ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Label } from "@radix-ui/react-label";
+import { Label } from "@/components/ui/label";
 import { 
   Mail, 
   Lock, 
