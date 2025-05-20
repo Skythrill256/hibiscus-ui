@@ -15,6 +15,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
 import { ArrowLeft,ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Label } from "@radix-ui/react-label";
+import { 
+  Mail, 
+  Lock, 
+  LogIn, 
+  UserPlus 
+} from "lucide-react";
 // Sample agents data
 const agents = [
   {
@@ -575,27 +582,141 @@ const page = () => {
         
       </div>
       
-      {/* Login Required Dialog */}
-      <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
-        <DialogContent className="max-w-md text-center">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold mb-2">Login Required</DialogTitle>
-            <DialogDescription className="mb-4">
-              You need to log in to create a new agent. Please log in to continue.
-            </DialogDescription>
-          </DialogHeader>
-          <Button
-            className="w-full text-white font-semibold shadow-lg hover:from-pulse-600 hover:to-pulse-800 transition-all duration-200 py-3 rounded-xl text-base flex items-center justify-center gap-2"
+      // Modify the Dialog section at the bottom of your file
+
+{/* Login Required Dialog */}
+<Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
+  <DialogContent className="max-w-2xl">
+    <DialogHeader>
+      <DialogTitle className="text-2xl font-bold text-center">Welcome to Hibiscus</DialogTitle>
+      <DialogDescription className="text-center">
+        Login to create and manage AI agents
+      </DialogDescription>
+    </DialogHeader>
+
+    <Tabs defaultValue="login" className="w-full mt-4">
+      <TabsList className="grid w-full grid-cols-2 mb-8">
+        <TabsTrigger value="login">Login</TabsTrigger>
+        <TabsTrigger value="register">Register</TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="login" className="space-y-4">
+        <div className="space-y-4 p-2">
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+              <Input 
+                id="email" 
+                type="email" 
+                placeholder="Enter your email"
+                className="pl-10"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+              <Input 
+                id="password" 
+                type="password" 
+                placeholder="Enter your password"
+                className="pl-10"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Checkbox id="remember" />
+              <label htmlFor="remember" className="text-sm text-gray-600">
+                Remember me
+              </label>
+            </div>
+            <Button variant="link" className="text-sm text-pulse-600">
+              Forgot password?
+            </Button>
+          </div>
+
+          <Button 
+            className="w-full bg-black"
             onClick={() => {
               setShowLoginDialog(false);
-              router.push("/agents/create-login");
+              router.push("/agents/create");
             }}
           >
-            <User className="h-5 w-5 text-white" />
-            Login
+            <LogIn className="w-4 h-4 mr-2" />
+            Sign In
           </Button>
-        </DialogContent>
-      </Dialog>
+        </div>
+      </TabsContent>
+
+      <TabsContent value="register" className="space-y-4">
+        <div className="space-y-4 p-2">
+          <div className="space-y-2">
+            <Label htmlFor="name">Full Name</Label>
+            <div className="relative">
+              <User className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+              <Input 
+                id="name" 
+                placeholder="Enter your full name"
+                className="pl-10"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="register-email">Email</Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+              <Input 
+                id="register-email" 
+                type="email" 
+                placeholder="Enter your email"
+                className="pl-10"
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="register-password">Password</Label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
+              <Input 
+                id="register-password" 
+                type="password" 
+                placeholder="Create a password"
+                className="pl-10"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <Checkbox id="terms" />
+            <label htmlFor="terms" className="text-sm text-gray-600">
+              I agree to the Terms of Service and Privacy Policy
+            </label>
+          </div>
+
+          <Button 
+            className="w-full bg-black"
+          >
+            <UserPlus className="w-4 h-4 mr-2" />
+            Create Account
+          </Button>
+        </div>
+      </TabsContent>
+    </Tabs>
+
+    <div className="mt-6 pt-6 border-t border-gray-100">
+      <p className="text-center text-sm text-gray-500">
+        By continuing, you agree to our Terms of Service and Privacy Policy.
+      </p>
+    </div>
+  </DialogContent>
+</Dialog>
     </section>
   );
 };
