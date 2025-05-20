@@ -16,6 +16,7 @@ import Link from "next/link";
 import { ArrowLeft,ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Label } from "@/components/ui/label";
+import FilterBarUI from "@/components/FilterBarUI";
 import { 
   Mail, 
   Lock, 
@@ -153,6 +154,36 @@ const page = () => {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const [showLoginDialog, setShowLoginDialog] = useState(false);
   const router = useRouter();
+  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  // Add this function inside your page component, before the return statement
+const getGradientForAgent = (type: string) => {
+  const gradients = {
+    'Analytics': 'linear-gradient(135deg, #1a237e 0%, #0d47a1 100%)',
+    'Security': 'linear-gradient(135deg, #004d40 0%, #00695c 100%)',
+    'Monitoring': 'linear-gradient(135deg, #311b92 0%, #4527a0 100%)',
+    'Support': 'linear-gradient(135deg, #b71c1c 0%, #c62828 100%)',
+    'Utilities': 'linear-gradient(135deg, #006064 0%, #00838f 100%)',
+    'Integration': 'linear-gradient(135deg, #1a237e 0%, #283593 100%)',
+    // Add a default gradient for any other types
+    'default': 'linear-gradient(135deg, #37474f 0%, #455a64 100%)'
+  };
+  
+  return gradients[type as keyof typeof gradients] || gradients.default;
+};
+
+  const handleFilterClick = (filter: string) => {
+    setSelectedFilters(prev =>
+      prev.includes(filter) ? prev.filter(f => f !== filter) : [...prev, filter]
+    );
+  };
+
+  const filteredAgents = agents.filter(agent => {
+    const matchesSearch = agent.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesFilters =
+      selectedFilters.length === 0 ||
+      selectedFilters.every(filter => agent.capabilities.includes(filter));
+    return matchesSearch && matchesFilters;
+  });
   // Filter states
   const [expandedFilters, setExpandedFilters] = useState<Record<string, boolean>>({
     category: true,
@@ -189,36 +220,7 @@ const page = () => {
   };
 
   // Handle search and filters
-  const filteredAgents = agents.filter(agent => {
-    // Search filter
-    const matchesSearch = 
-      searchTerm === "" ||
-      agent.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-      agent.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      agent.capabilities.some(cap => cap.toLowerCase().includes(searchTerm.toLowerCase()));
-      
-    // Category filter
-    const matchesType = 
-      filters.type.length === 0 || 
-      filters.type.includes(agent.type);
-      
-    // Tags filter
-    const matchesTags = 
-      filters.tags.length === 0 || 
-      filters.tags.some(tag => agent.tags.includes(tag));
-      
-    // Created by filter
-    const matchesCreatedBy = 
-      filters.createdBy.length === 0 || 
-      filters.createdBy.includes(agent.createdBy);
-      
-    // Date created filter (simplified for demo)
-    const matchesDateCreated = 
-      filters.dateCreated.length === 0 || 
-      filters.dateCreated.includes(agent.dateCreated);
-      
-    return matchesSearch && matchesType && matchesTags && matchesCreatedBy && matchesDateCreated;
-  });
+ 
 
   const handleAgentClick = (agent: typeof agents[0]) => {
     setSelectedAgent(agent);
@@ -232,22 +234,17 @@ const page = () => {
   };
 
   return (
-    <section className="w-full py-8 relative animate-on-scroll ">
-        <header className="text-black">
+    <section className="w-full h-full py-8 relative animate-on-scroll bg-[#0D0620]">
+        <header className="text-white">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row justify-between items-center py-10">
-            {/* <div className="flex items-center mb-6 md:mb-0">
-              <Link href="/" className="flex items-center mr-8 group">
-                <ArrowLeft className="h-5 w-5 mr-2 transform group-hover:-translate-x-1 transition-transform duration-200" />
-                <span className="text-sm font-medium">Back to Home</span>
-              </Link>
-            </div> */}
+           
             
             <div className="w-full flex flex-col items-center text-center">
-              <h1 className="text-black text-4xl font-bold bg-clip-text tracking-tight">
+              <h1 className="text-white text-4xl font-bold bg-clip-text tracking-tight">
                 Hibiscus Registry
               </h1>
-              <p className="mt-2 text-black max-w-2xl">
+              <p className="mt-2 text-white max-w-2xl">
                 Discover and connect with powerful AI agents across the Pebble network ecosystem
               </p>
             </div>
@@ -256,14 +253,8 @@ const page = () => {
               className="w-fit flex flex-col sm:flex-row gap-4 justify-center"
             >
               <Button
-                className="flex items-center justify-center group w-full sm:w-auto text-center bg-black text-white font-semibold shadow-lg hover:from-pulse-600 hover:to-pulse-800 transition-all duration-200 px-16 rounded-full py-5"
-                style={{
-                  borderRadius: '1440px',
-                  cursor: 'pointer',
-                  fontSize: '16px',
-                  lineHeight: '20px',
-                  border: 'none',
-                }}
+                className="flex items-center justify-center group w-full sm:w-auto text-center border-white bg-transparent text-white font-semibold shadow-lg transition-all duration-200 px-20 rounded-full py-5"
+               
                 onClick={() => setShowLoginDialog(true)}
               >
                 Create Agent
@@ -276,200 +267,12 @@ const page = () => {
       <div className="container px-4 sm:px-6 lg:px-8 mx-auto">
        
 
-        <div className="flex flex-col lg:flex-row gap-6">
+        <div className="w-full flex flex-col lg:flex-row gap-6">
           {/* Sidebar filters */}
-         <div className="flex flex-col lg:flex-row gap-6 min-h-[70vh] lg:items-center lg:justify-center">
-            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 sticky top-24 w-[300px]">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-gray-900">Filters</h3>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="text-xs h-7"
-                  onClick={() => setFilters({type: [], tags: [], createdBy: [], dateCreated: []})}
-                >
-                  Clear all
-                </Button>
-              </div>
-              
-              {/* Category filter */}
-              <div className="mb-3 border-b border-gray-100 pb-3">
-                <div 
-                  className="flex items-center justify-between cursor-pointer py-1" 
-                  onClick={() => toggleFilterSection('category')}
-                >
-                  <span className="font-medium text-sm flex items-center gap-2">
-                    <Filter className="h-4 w-4" /> Categories
-                  </span>
-                  {expandedFilters.category ? 
-                    <ChevronUp className="h-4 w-4" /> : 
-                    <ChevronDown className="h-4 w-4" />
-                  }
-                </div>
-                
-                {expandedFilters.category && (
-                  <div className="mt-2 space-y-1">
-                    {getUniqueValues('type').map(type => (
-                      <div key={type} className="flex items-center space-x-2">
-                        <Checkbox 
-                          id={`category-${type}`} 
-                          checked={filters.type.includes(type)}
-                          onCheckedChange={() => toggleFilter('type', type)}
-                        />
-                        <label 
-                          htmlFor={`category-${type}`}
-                          className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          {type}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              
-              {/* Tags filter */}
-              <div className="mb-3 border-b border-gray-100 pb-3">
-                <div 
-                  className="flex items-center justify-between cursor-pointer py-1" 
-                  onClick={() => toggleFilterSection('tags')}
-                >
-                  <span className="font-medium text-sm flex items-center gap-2">
-                    <Tag className="h-4 w-4" /> Tags
-                  </span>
-                  {expandedFilters.tags ? 
-                    <ChevronUp className="h-4 w-4" /> : 
-                    <ChevronDown className="h-4 w-4" />
-                  }
-                </div>
-                
-                {expandedFilters.tags && (
-                  <div className="mt-2 space-y-1">
-                    {getUniqueTags().map(tag => (
-                      <div key={tag} className="flex items-center space-x-2">
-                        <Checkbox 
-                          id={`tag-${tag}`} 
-                          checked={filters.tags.includes(tag)}
-                          onCheckedChange={() => toggleFilter('tags', tag)}
-                        />
-                        <label 
-                          htmlFor={`tag-${tag}`}
-                          className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          {tag}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              
-              {/* Created by filter */}
-              <div className="mb-3 border-b border-gray-100 pb-3">
-                <div 
-                  className="flex items-center justify-between cursor-pointer py-1" 
-                  onClick={() => toggleFilterSection('createdBy')}
-                >
-                  <span className="font-medium text-sm flex items-center gap-2">
-                    <User className="h-4 w-4" /> Created By
-                  </span>
-                  {expandedFilters.createdBy ? 
-                    <ChevronUp className="h-4 w-4" /> : 
-                    <ChevronDown className="h-4 w-4" />
-                  }
-                </div>
-                
-                {expandedFilters.createdBy && (
-                  <div className="mt-2 space-y-1">
-                    {getUniqueValues('createdBy').map(creator => (
-                      <div key={creator} className="flex items-center space-x-2">
-                        <Checkbox 
-                          id={`creator-${creator}`} 
-                          checked={filters.createdBy.includes(creator)}
-                          onCheckedChange={() => toggleFilter('createdBy', creator)}
-                        />
-                        <label 
-                          htmlFor={`creator-${creator}`}
-                          className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          {creator}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              
-              {/* Date created filter */}
-              <div className="mb-3">
-                <div 
-                  className="flex items-center justify-between cursor-pointer py-1" 
-                  onClick={() => toggleFilterSection('dateCreated')}
-                >
-                  <span className="font-medium text-sm flex items-center gap-2">
-                    <Calendar className="h-4 w-4" /> Date Created
-                  </span>
-                  {expandedFilters.dateCreated ? 
-                    <ChevronUp className="h-4 w-4" /> : 
-                    <ChevronDown className="h-4 w-4" />
-                  }
-                </div>
-                
-                {expandedFilters.dateCreated && (
-                  <div className="mt-2 space-y-1">
-                    {getUniqueValues('dateCreated').map(date => (
-                      <div key={date} className="flex items-center space-x-2">
-                        <Checkbox 
-                          id={`date-${date}`} 
-                          checked={filters.dateCreated.includes(date)}
-                          onCheckedChange={() => toggleFilter('dateCreated', date)}
-                        />
-                        <label 
-                          htmlFor={`date-${date}`}
-                          className="text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                        >
-                          {date}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              
-              <div className="mt-4 pt-3 border-t border-gray-100">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-500">Active filters:</span>
-                  <span className="text-sm font-medium">
-                    {Object.values(filters).reduce((acc, arr) => acc + arr.length, 0)}
-                  </span>
-                </div>
-                
-                <div className="mt-2 flex flex-wrap gap-1">
-                  {Object.entries(filters).flatMap(([category, values]) =>
-                    values.map(value => (
-                      <Badge 
-                        key={`${category}-${value}`} 
-                        variant="outline"
-                        className="flex items-center gap-1 bg-gray-50"
-                      >
-                        {value}
-                        <button 
-                          onClick={() => toggleFilter(category, value)}
-                          className="ml-1 rounded-full hover:bg-gray-200 p-0.5"
-                        >
-                          <span className="sr-only">Remove</span>
-                          <Check className="h-3 w-3" />
-                        </button>
-                      </Badge>
-                    ))
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
+        
 
-          <div className="w-full flex-1">
-            <div className="w-full relative max-w-6xl mb-6 group" onClick={focusSearch}>
+          <div className="w-full ">
+            <div className="w-full relative mb-6 group" onClick={focusSearch}>
               <div className="w-full absolute inset-0 bg-pulse-200 group-hover:opacity-10 rounded-lg transition-opacity duration-300"></div>
               <Search 
                 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 group-hover:text-pulse-500 transition-colors duration-300" 
@@ -478,90 +281,98 @@ const page = () => {
                 ref={searchInputRef}
                 type="text"
                 placeholder="Search by agent name, type, or capabilities..."
-                className="pl-10 py-6 text-base border-gray-200 hover:border-pulse-300 focus:border-pulse-400 focus:ring focus:ring-pulse-100 transition-all duration-300 rounded-lg"
+                className="text-white pl-10 py-6 text-base border-gray-200 hover:border-pulse-300 focus:border-pulse-400 focus:ring focus:ring-pulse-100 transition-all duration-300 rounded-lg"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
-
+                 <FilterBarUI selectedFilters={selectedFilters} onFilterClick={handleFilterClick} />
             {filteredAgents.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredAgents.map(agent => (
-                  <HoverCard key={agent.id} openDelay={200} closeDelay={100}>
-                    <HoverCardTrigger asChild>
-                      <Card 
-                        className={`border cursor-pointer transition-all duration-300 hover:shadow-md hover:border-pulse-200 ${
-                          hoveredAgent === agent.id ? 'transform -translate-y-1 shadow-md' : ''
-                        }`}
-                        onClick={() => handleAgentClick(agent)}
-                        onMouseEnter={() => setHoveredAgent(agent.id)}
-                        onMouseLeave={() => setHoveredAgent(null)}
-                      >
-                        <CardHeader className="flex flex-row items-center gap-3 pb-2">
-                          <div className={`p-2 rounded-lg transition-all duration-300 ${
-                            hoveredAgent === agent.id 
-                            ? 'bg-pulse-100 animate-pulse' 
-                            : 'bg-gray-100'
-                          }`}>
-                            {agent.icon}
-                          </div>
-                          <div>
-                            <CardTitle className="text-base">{agent.name}</CardTitle>
-                            <p className="text-xs text-gray-500">{agent.type}</p>
-                          </div>
-                          <div className={`ml-auto px-2 py-1 rounded-full text-xs font-medium transition-colors duration-300 ${
-                            agent.status === "Active" ? "bg-green-100 text-green-800" : 
-                            agent.status === "Idle" ? "bg-amber-100 text-amber-800" : 
-                            "bg-gray-100 text-gray-800"
-                          } ${hoveredAgent === agent.id && agent.status === "Active" ? "bg-green-200 text-green-900" : ""}`}>
-                            {agent.status}
-                          </div>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-2">
-                            <p className="text-xs text-gray-600 line-clamp-2">{agent.description}</p>
-                            <div>
-                              <p className="text-xs text-gray-500 mb-1">Capabilities:</p>
-                              <div className="flex flex-wrap gap-1">
-                                {agent.capabilities.map((capability, idx) => (
-                                  <span 
-                                    key={idx} 
-                                    className={`text-xs px-2 py-0.5 rounded-full transition-colors duration-300 ${
-                                      hoveredAgent === agent.id 
-                                        ? 'bg-pulse-50 text-pulse-700 border border-pulse-200' 
-                                        : 'bg-gray-100 border border-gray-200'
-                                    }`}
-                                  >
-                                    {capability}
-                                  </span>
-                                ))}
-                              </div>
-                            </div>
-                           <Button
-  asChild
-  variant="ghost"
-  className="w-full mt-2 text-xs h-8 hover:bg-pulse-50 hover:text-pulse-700"
->
-  <Link href={`/agents/${agent.id}`}>
-    View Details <ChevronRight className="h-3 w-3 ml-1" />
-  </Link>
-</Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </HoverCardTrigger>
-                    <HoverCardContent className="w-80 p-0 overflow-hidden">
-                      <div className="p-4 bg-gradient-to-r from-gray-50 to-white">
-                        <h4 className="font-medium text-sm mb-1">{agent.name}</h4>
-                        <p className="text-xs text-gray-600">{agent.description}</p>
-                      </div>
-                      <div className="bg-gray-50 p-2 flex justify-between items-center">
-                        <span className="text-xs text-gray-500">Performance Score: {agent.performanceScore}%</span>
-                        <span className="text-xs font-medium text-pulse-600">View details</span>
-                      </div>
-                    </HoverCardContent>
-                  </HoverCard>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-5">
+                
+
+{filteredAgents.map(agent => (
+  <HoverCard key={agent.id} openDelay={200} closeDelay={100}>
+    <HoverCardTrigger>
+      <Card 
+        className={`border cursor-pointer transition-all duration-300 hover:shadow-md hover:border-pulse-200 relative overflow-hidden
+          ${hoveredAgent === agent.id ? 'transform -translate-y-1 shadow-md' : ''}
+        `}
+        style={{
+          background: getGradientForAgent(agent.type),
+          borderColor: 'rgba(255,255,255,0.1)'
+        }}
+        onClick={() => handleAgentClick(agent)}
+        onMouseEnter={() => setHoveredAgent(agent.id)}
+        onMouseLeave={() => setHoveredAgent(null)}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/30 pointer-events-none"/>
+        <CardHeader className="flex flex-row items-center gap-3 pb-2 relative z-10">
+          <div className={`p-2 rounded-lg transition-all duration-300 backdrop-blur-sm bg-white/10`}>
+            {agent.icon}
+          </div>
+          <div>
+            <CardTitle className="text-base text-white">{agent.name}</CardTitle>
+            <p className="text-xs text-gray-200">{agent.type}</p>
+          </div>
+          <div className={`ml-auto px-2 py-1 rounded-full text-xs font-medium transition-colors duration-300 
+            ${agent.status === "Active" ? "bg-green-500/20 text-green-200" : 
+              agent.status === "Idle" ? "bg-amber-500/20 text-amber-200" : 
+              "bg-gray-500/20 text-gray-200"}
+          `}>
+            {agent.status}
+          </div>
+        </CardHeader>
+        <CardContent className="relative z-10">
+          <div className="space-y-2">
+            <p className="text-xs text-gray-200 line-clamp-2">{agent.description}</p>
+            <div>
+              <p className="text-xs text-gray-300 mb-1">Capabilities:</p>
+              <div className="flex flex-wrap gap-1">
+                {agent.capabilities.map((capability, idx) => (
+                  <span 
+                    key={idx} 
+                    className={`text-xs px-2 py-0.5 rounded-full transition-colors duration-300
+                      backdrop-blur-sm bg-white/10 border border-white/20 text-white
+                    `}
+                  >
+                    {capability}
+                  </span>
                 ))}
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              className="w-full mt-2 text-xs h-8 bg-white/10 text-white hover:bg-white/20 backdrop-blur-sm"
+            >
+              View Details <ChevronRight className="h-3 w-3 ml-1" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+    </HoverCardTrigger>
+     <HoverCardContent 
+      className="w-80 p-0 overflow-hidden border border-white/10"
+      style={{
+        background: getGradientForAgent(agent.type),
+      }}
+    >
+      <div className="p-4 backdrop-blur-sm bg-black/10">
+        <h4 className="font-medium text-sm mb-1 text-white">{agent.name}</h4>
+        <p className="text-xs text-gray-200">{agent.description}</p>
+      </div>
+      <div className="backdrop-blur-sm bg-white/5 p-2 flex justify-between items-center border-t border-white/10">
+        <span className="text-xs text-gray-200">
+          Performance Score: 
+          <span className="font-medium ml-1">{agent.performanceScore}%</span>
+        </span>
+        <span className="text-xs font-medium text-white hover:text-gray-200 transition-colors">
+          View details
+        </span>
+      </div>
+    </HoverCardContent>
+  </HoverCard>
+))}
               </div>
             ) : (
               <div className="text-center py-12 bg-white rounded-lg border border-gray-100 shadow-sm">
@@ -582,7 +393,7 @@ const page = () => {
         
       </div>
       
-      // Modify the Dialog section at the bottom of your file
+      
 
 {/* Login Required Dialog */}
 <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
@@ -715,6 +526,133 @@ const page = () => {
         By continuing, you agree to our Terms of Service and Privacy Policy.
       </p>
     </div>
+  </DialogContent>
+</Dialog>
+{/* Agent Details Dialog */}
+{/* Agent Details Dialog */}
+// Find and replace the Dialog component with this updated version
+
+<Dialog open={selectedAgent !== null} onOpenChange={() => setSelectedAgent(null)}>
+  <DialogContent 
+    className="max-w-4xl border border-white/10 overflow-hidden"
+    style={{
+      background: selectedAgent ? getGradientForAgent(selectedAgent.type) : undefined,
+    }}
+  >
+    {selectedAgent && (
+      <>
+        <DialogHeader>
+          <div className="flex items-start gap-4">
+            <div className="p-3 backdrop-blur-sm bg-white/10 rounded-lg">
+              {selectedAgent.icon}
+            </div>
+            <div className="flex-1">
+              <DialogTitle className="text-2xl font-bold text-white">{selectedAgent.name}</DialogTitle>
+              <div className="flex items-center gap-2 mt-2">
+                <Badge className={
+                  `backdrop-blur-sm ${
+                    selectedAgent.status === "Active" ? "bg-green-500/20 text-green-200" : 
+                    selectedAgent.status === "Idle" ? "bg-amber-500/20 text-amber-200" : 
+                    "bg-gray-500/20 text-gray-200"
+                  }`
+                }>
+                  {selectedAgent.status}
+                </Badge>
+                <span className="text-sm text-gray-200">Version {selectedAgent.version}</span>
+              </div>
+            </div>
+          </div>
+        </DialogHeader>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+          {/* Main Info */}
+          <div className="md:col-span-2 space-y-6">
+            <div>
+              <h3 className="font-semibold mb-2 text-white">Description</h3>
+              <p className="text-gray-200">{selectedAgent.description}</p>
+            </div>
+
+            <div>
+              <h3 className="font-semibold mb-2 text-white">Capabilities</h3>
+              <div className="flex flex-wrap gap-2">
+                {selectedAgent.capabilities.map((capability, idx) => (
+                  <Badge 
+                    key={idx} 
+                    className="backdrop-blur-sm bg-white/10 border border-white/20 text-white"
+                  >
+                    {capability}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="font-semibold mb-2 text-white">Compatible Systems</h3>
+              <div className="flex flex-wrap gap-2">
+                {selectedAgent.compatibleSystems.map((system, idx) => (
+                  <span 
+                    key={idx} 
+                    className="text-sm px-2 py-1 backdrop-blur-sm bg-white/10 rounded-md text-white"
+                  >
+                    {system}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Sidebar Info */}
+          <div className="space-y-6">
+            <div className="backdrop-blur-sm bg-white/5 rounded-lg p-4">
+              <h3 className="font-semibold mb-3 text-white">Performance</h3>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-200">Score</span>
+                  <span className="font-medium text-white">{selectedAgent.performanceScore}%</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-200">Usage Count</span>
+                  <span className="font-medium text-white">{selectedAgent.usageCount}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <h4 className="text-sm font-medium text-gray-200">Created By</h4>
+                <p className="text-white">{selectedAgent.createdBy}</p>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium text-gray-200">Date Created</h4>
+                <p className="text-white">{selectedAgent.dateCreated}</p>
+              </div>
+              <div>
+                <h4 className="text-sm font-medium text-gray-200">Last Updated</h4>
+                <p className="text-white">{selectedAgent.lastUpdated}</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="w-full flex gap-2">
+            <Button 
+              className="w-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm border border-white/20"
+              asChild
+            >
+              <a href={selectedAgent.documentation} target="_blank" rel="noopener noreferrer">
+                Connect Agent
+              </a>
+            </Button>
+            <Button 
+              variant="outline" 
+              className="w-full backdrop-blur-sm bg-white/10 hover:bg-white/20 text-white border-white/20"
+              onClick={() => setSelectedAgent(null)}
+            >
+              Close
+            </Button>
+          </div>
+        </div>
+      </>
+    )}
   </DialogContent>
 </Dialog>
     </section>
