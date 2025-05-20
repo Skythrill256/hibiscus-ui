@@ -12,7 +12,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
+import Link from "next/link";
 // Sample agents data
 const agents = [
   {
@@ -493,16 +493,15 @@ const page = () => {
                                 ))}
                               </div>
                             </div>
-                            <Button 
-                              variant="ghost" 
-                              className="w-full mt-2 text-xs h-8 hover:bg-pulse-50 hover:text-pulse-700"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleAgentClick(agent);
-                              }}
-                            >
-                              View Details <ChevronRight className="h-3 w-3 ml-1" />
-                            </Button>
+                           <Button
+  asChild
+  variant="ghost"
+  className="w-full mt-2 text-xs h-8 hover:bg-pulse-50 hover:text-pulse-700"
+>
+  <Link href={`/agents/${agent.id}`}>
+    View Details <ChevronRight className="h-3 w-3 ml-1" />
+  </Link>
+</Button>
                           </div>
                         </CardContent>
                       </Card>
